@@ -1,7 +1,0 @@
-Number of Iterations:  10
-Average time per step is  00000.83560 ms
-Average time for collisions is  00000.06820 ms
-Average time for velocity updates is  00000.26070 ms
-Average time for position updates is  00000.06460 ms
-Total loop time is  00008.37100 ms
-This is from the Box2D simulation for CS296 Lab 04. It has been made by Nitin Chandrol from Group 18.
