@@ -43,13 +43,9 @@ namespace cs296
   typedef base_sim_t* sim_create_fcn(); 
 
   //! Simulation settings. Some can be controlled in the GUI.
-	/** Box2D Simulation is being configured by setting up some static variable.
-	*/
   struct settings_t
   {
     //! Notice the initialization of the class members in the constructor
-	 /** Constructor calls are being made here. 
-	*/ 
     //! How is this happening?
     settings_t() :
       view_center(0.0f, 20.0f),
@@ -95,12 +91,12 @@ namespace cs296
     int32 pause;
     int32 single_step;
   };
-  //!Simulation represention
+  
   struct sim_t
   {
-    const char *name; //!< name of simulation
+    const char *name;
     sim_create_fcn *create_fcn;
-	//! Simulation creation
+
     sim_t(const char *_name, sim_create_fcn *_create_fcn): 
       name(_name), create_fcn(_create_fcn) {;}
   };
@@ -109,20 +105,15 @@ namespace cs296
   
   
   const int32 k_max_contact_points = 2048;  
-	//! Contact between 2 bodies
-	/** struct to be invoked whenever 2 bodies come in contact
-	 */
-  struct contact_point_t 
+  struct contact_point_t
   {
-    b2Fixture* fixtureA; //!< fixture of A
-    b2Fixture* fixtureB; //!< fixture of B
-    b2Vec2 normal; //!< Normal vector at point of contact
-    b2Vec2 position; //!< Position vector at point of contact
-    b2PointState state; //!< state of contact
+    b2Fixture* fixtureA;
+    b2Fixture* fixtureB;
+    b2Vec2 normal;
+    b2Vec2 position;
+    b2PointState state;
   };
-	//! Class is used for simulating Box2D
-	/** It uses b2Contactlistener which is called during contacts between objects  
-	 */
+  
   class base_sim_t : public b2ContactListener
   {
   public:
@@ -158,10 +149,11 @@ namespace cs296
       B2_NOT_USED(contact);
       B2_NOT_USED(impulse);
     }
-	
-	inline b2World* get_world(){
+    
+    inline b2World* get_world(void){
 		return m_world;
-	}
+	 }
+
   //!How are protected members different from private memebers of a class in C++ ?
   protected:
 

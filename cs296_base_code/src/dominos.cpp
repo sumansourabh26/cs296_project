@@ -38,6 +38,7 @@
 
 #include "cs296_base.hpp"
 #include "render.hpp"
+#include <cmath>
 
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
@@ -61,7 +62,6 @@ namespace cs296
 	 /*! \section sec Elements of Graphics
 	 * 	
 	 */ 
-    //Ground
     
     /*! \subsection Ground
      * 
@@ -74,6 +74,8 @@ namespace cs296
      * \li \a bd is \a b2BodyDef type which stores the data about ground and then creates it.
      * \n \n
      */
+     
+     //Ground
      
     b2Body* b1;
     { 
@@ -133,13 +135,13 @@ namespace cs296
       fd.friction = 0.1f;
 		
       for (int i = 0; i < 10; ++i)
-	{
-	  b2BodyDef bd;
-	  bd.type = b2_dynamicBody;
-	  bd.position.Set(-35.5f + 1.0f * i, 31.25f);
-	  b2Body* body = m_world->CreateBody(&bd);
-	  body->CreateFixture(&fd);
-	}
+    	{
+    	  b2BodyDef bd;
+    	  bd.type = b2_dynamicBody;
+    	  bd.position.Set(-35.5f + 1.0f * i, 31.25f);
+    	  b2Body* body = m_world->CreateBody(&bd);
+    	  body->CreateFixture(&fd);
+    	}
     }
       
     //Another horizontal shelf
@@ -215,6 +217,7 @@ namespace cs296
       m_world->CreateJoint(&jd);
     }
       
+
     /*! \subsection balls Train of balls
      * 
      * \brief They are the train of dynamic balls on shelf which transfer movement from dominos to the pulley. For each ball:
@@ -228,130 +231,8 @@ namespace cs296
      * \n \n
      */
      
-     
-    //The train of small spheres
-    {
-      b2Body* spherebody;
-	
-      b2CircleShape circle;
-      circle.m_radius = 0.5;
-	
-      b2FixtureDef ballfd;
-      ballfd.shape = &circle;
-      ballfd.density = 1.0f;
-      ballfd.friction = 0.0f;
-      ballfd.restitution = 0.0f;
-	
-      for (int i = 0; i < 10; ++i)
-	{
-	  b2BodyDef ballbd;
-	  ballbd.type = b2_dynamicBody;
-	  ballbd.position.Set(-22.2f + i*1.0, 26.6f);
-	  spherebody = m_world->CreateBody(&ballbd);
-	  spherebody->CreateFixture(&ballfd);
-	}
-    }
 
-	/*! \subsection pulley Pulley-System
-	 * 
-	 * \brief Pulley is a system of rope and bucket which changes the direction of force applied, so when balls fall into
-	 * the bucket and it descends, the shelf on the other side of pulley rises. 
-	 * \a bd is a pointer of data type \a b2BodyDef , whose position is set to (-10, 15), using function \a position.Set() on \a bd.
-	 * It consists of various components:
-	 * 
-	 * \li \b Open \b Box :  It is to hold the balls which fall off the higher shelf, so that the weight of the balls in the bucket increases
-	 *  enough to lift the other side.
-	 * \a fd1, \a fd2 and \a fd3 are pointers of type \a b2FixtureDef while \a bs1, \a bs2 and \a bs3 are objects of class \a b2PolygonShape,
-	 *  which is used to assign shape to \a fd1, \a fd2 and \a fd3 respectively.
-	 *  All of these walls have length 4 and thickness 0.4, density = 10, friction = 0.5 and coefficient of restitution = 0.
-	 * 
-	 * \li \b Bar : position of \a bd is set using function \a position.Set() to (-10, 15), and its type is set to \a b2_dynamicBody,
-	 *  so that it can move.
-	 * 
-	 * \li \b pulley \b joint : \a myjoint is pointer of data type \a b2PulleyJointDef. \a worldAnchorOnBody1, \a worldAnchorOnBody2,
-	 * \a worldAnchorOnGround1 and \a worldAnchorOnGround2 are all objects of data type \a b2Vec2, initialised by (-10,15), (10, 15),
-	 *  (-10, 20) and (10,20), which denotes the position of various joints.
-	 * \b Float \b ratio : It's the ratio ..... . For our simulation it is 1.
-	 * 
-	 * \n \n
-	 */
-	 
-    //The pulley system
-    {
-      b2BodyDef *bd = new b2BodyDef;
-      bd->type = b2_dynamicBody;
-      bd->position.Set(-10,15);
-      bd->fixedRotation = true;
-
-      
-      //The open box
-      b2FixtureDef *fd1 = new b2FixtureDef;
-      fd1->density = 10.0;
-      fd1->friction = 0.5;
-      fd1->restitution = 0.f;
-      fd1->shape = new b2PolygonShape;
-      b2PolygonShape bs1;
-      bs1.SetAsBox(2,0.2, b2Vec2(0.f,-1.9f), 0);
-      fd1->shape = &bs1;
-      b2FixtureDef *fd2 = new b2FixtureDef;
-      fd2->density = 10.0;
-      fd2->friction = 0.5;
-      fd2->restitution = 0.f;
-      fd2->shape = new b2PolygonShape;
-      b2PolygonShape bs2;
-      bs2.SetAsBox(0.2,2, b2Vec2(2.0f,0.f), 0);
-      fd2->shape = &bs2;
-      b2FixtureDef *fd3 = new b2FixtureDef;
-      fd3->density = 10.0;
-      fd3->friction = 0.5;
-      fd3->restitution = 0.f;
-      fd3->shape = new b2PolygonShape;
-      b2PolygonShape bs3;
-      bs3.SetAsBox(0.2,2, b2Vec2(-2.0f,0.f), 0);
-      fd3->shape = &bs3;
-       
-      b2Body* box1 = m_world->CreateBody(bd);
-      box1->CreateFixture(fd1);
-      box1->CreateFixture(fd2);
-      box1->CreateFixture(fd3);
-
-      //The bar
-      bd->position.Set(10,15);	
-      fd1->density = 34.0;	  
-      b2Body* box2 = m_world->CreateBody(bd);
-      box2->CreateFixture(fd1);
-
-      // The pulley joint
-      b2PulleyJointDef* myjoint = new b2PulleyJointDef();
-      b2Vec2 worldAnchorOnBody1(-10, 15); // Anchor point on body 1 in world axis
-      b2Vec2 worldAnchorOnBody2(10, 15); // Anchor point on body 2 in world axis
-      b2Vec2 worldAnchorGround1(-10, 20); // Anchor point for ground 1 in world axis
-      b2Vec2 worldAnchorGround2(10, 20); // Anchor point for ground 2 in world axis
-      float32 ratio = 1.0f; // Define ratio
-      myjoint->Initialize(box1, box2, worldAnchorGround1, worldAnchorGround2, box1->GetWorldCenter(), box2->GetWorldCenter(), ratio);
-      m_world->CreateJoint(myjoint);
-    }
-    
-    /*! \subsection rev_plate Revolving horizontal platform
-     * \a bd is \a b2BodyDef type which stores the data about ground and then creates it.
-     * It consists of two components:
-     *  
-     * \li \b Plateform: Its shape is set to Box of dimensions 4.4 units X 0.4 unit using function \a SetAsBox(). 
-     * \a bd is \a b2BodyDef type which stores the data about revolving horizontal platform then creates it. It is a dynamic body.
-     *  Its position is set to (14, 14) using function \a position.Set().
-     * 
-     * \li \b Hinge: It is the centre of rotation about which the platform rotates. Its shape is set to Box of dimensions 0.4 units
-     *  X 0.4 unit using function \a SetAsBox(). 
-     * \a bd is \a b2BodyDef type which stores the data about revolving horizontal platform then creates it. It is a dynamic body.
-     *  Its position is set to (14, 16).
-     * 
-     * Joining of these two components is done using object \a jointDef, which is an instantiation of \a b2RevoluteJointDef. It is used to make joints about which bodies can rotate.
-     * The joint objects here are not allowed to collide so the value of \a jointDef.collideConnected is set to false.
-     * \n \n
-     */
-     
-    
-    //The revolving horizontal platform
+	  //The revolving horizontal platform
     {
       b2PolygonShape shape;
       shape.SetAsBox(2.2f, 0.2f);
@@ -462,7 +343,6 @@ namespace cs296
        */
        
        
-       
       b2PolygonShape shape;
       shape.SetAsBox(15.0f, 0.2f);
       b2BodyDef bd2;
@@ -538,63 +418,6 @@ namespace cs296
       sbody = m_world->CreateBody(&ballbd_new);
       sbody->CreateFixture(&ballfd);
     }
-    
-    	//The another horizontal platform
-    /*! \subsection p2 A ball on rotating rod 
-     * 
-     * \li \b Rotating \b rod: Rod initially at horizontal and with ball placed at center.
-     * \li \b ball: The ball comes from top and collides with the system and rod starts rotating and the center ball falls down on right on plank placed on see-saw
-     * 
-     */
-    {
-      b2PolygonShape shape;
-      shape.SetAsBox(4.2f, 0.2f);
-	
-      b2BodyDef bd;
-      bd.position.Set(17.0f, 9.0f);
-      bd.type = b2_dynamicBody;
-      b2Body* body = m_world->CreateBody(&bd);
-      b2FixtureDef *fd = new b2FixtureDef;
-      fd->density = 1.f;
-      fd->shape = new b2PolygonShape;
-      fd->shape = &shape;
-      body->CreateFixture(fd);
-
-      b2PolygonShape shape2;
-      shape2.SetAsBox(0.2f, 2.0f);
-      b2BodyDef bd2;
-      bd2.position.Set(17.0f, 11.0f);
-      b2Body* body2 = m_world->CreateBody(&bd2);
-
-      b2RevoluteJointDef jointDef;
-      jointDef.bodyA = body;
-      jointDef.bodyB = body2;
-      jointDef.localAnchorA.Set(0,0);
-      jointDef.localAnchorB.Set(0,0);
-      jointDef.collideConnected = false;
-      m_world->CreateJoint(&jointDef);
-    }
-    
-    {
-      b2Body* sbody;
-      b2CircleShape circle;
-      circle.m_radius = 1.0;
-	
-      b2FixtureDef ballfd;
-      ballfd.shape = &circle;
-      ballfd.density = 100.0f;
-      ballfd.friction = 0.0f;
-      ballfd.restitution = 0.0f;
-      b2BodyDef ballbd;
-      ballbd.type = b2_dynamicBody;
-      ballbd.position.Set(17.0f, 13.0f);
-      sbody = m_world->CreateBody(&ballbd);
-      sbody->CreateFixture(&ballfd);
-    }
-  
-  
-  //rohit
-  
 
      /*! \subsection Hinged rod and wedge collision
       *  collision provides a horizontal velocity to wedge under the momentum conservation law and as the ground has some friction, wedge moves with deceleration, until it piles down the stack of dominos
@@ -605,11 +428,26 @@ namespace cs296
       * \li \b dominos: A set of sticks which is collapsed by moving wedge.
       * 
       */
+     /** 
+	{     
+		b2CircleShape circle;
+		circle.m_radius = 5.0f;
+		b2BodyDef c1;
+		c1.position.Set(-27.0f, 17.0f);
+		b2Body* body = m_world->CreateBody(&c1);
+		b2FixtureDef c;
+		c.shape = &circle;
+		body->CreateFixture(&c);
+	}
+	*/
     // 3rd sphere
+
+
     {
       b2Body* sbody;
       b2CircleShape circle;
       circle.m_radius = 0.8;
+	
 	
       b2FixtureDef ballfd;
       ballfd.shape = &circle;
@@ -621,27 +459,37 @@ namespace cs296
       ballbd_new.position.Set(-24.5f, 26.5f);
       sbody = m_world->CreateBody(&ballbd_new);
       sbody->CreateFixture(&ballfd);
-    }
-    
-    // revolving r
-    {
-      b2PolygonShape shape;
-      shape.SetAsBox(4.2f, 0.2f);
+	}
 	
+   
+    /// Joint Movements
+
+  /// The Chain System
+
+  /// The rear wheel
+  //short CATEGORY_NOTCOLLIDE = 0x0001;
+
+  {
+      b2CircleShape shape;
+      shape.m_radius = 3.0f;
+  
       b2BodyDef bd;
-      bd.position.Set(-30.0f, 5.0f);
+      bd.position.Set(-17.0f, 10.0f);
       bd.type = b2_dynamicBody;
       b2Body* body = m_world->CreateBody(&bd);
       b2FixtureDef *fd = new b2FixtureDef;
-      fd->density = 1.f;
+      fd->density = 100.f;
       fd->shape = new b2PolygonShape;
       fd->shape = &shape;
+
+      
+
       body->CreateFixture(fd);
 
       b2PolygonShape shape2;
       shape2.SetAsBox(0.2f, 2.0f);
       b2BodyDef bd2;
-      bd2.position.Set(-30.0f, 7.0f);
+      bd2.position.Set(-17.0f, 10.0f);
       b2Body* body2 = m_world->CreateBody(&bd2);
 
       b2RevoluteJointDef jointDef;
@@ -651,49 +499,265 @@ namespace cs296
       jointDef.localAnchorB.Set(0,0);
       jointDef.collideConnected = false;
       m_world->CreateJoint(&jointDef);
-    }
-    
-    {
-      //The triangle wedge at the bottom
-      b2Body* sbody;
-      b2PolygonShape poly;
-      b2Vec2 vertices[3];
-      vertices[0].Set(-3,0);
-      vertices[1].Set(0,6);
-      vertices[2].Set(0,0);
-      poly.Set(vertices, 3);
-      b2FixtureDef wedgefd;
-      wedgefd.shape = &poly;
-      wedgefd.density = 0.05f;
-      wedgefd.friction = 0.3f;
-      wedgefd.restitution = 0.0f;
-      b2BodyDef wedgebd;
-      wedgebd.type = b2_dynamicBody;
-      wedgebd.position.Set(-28.0f, 0.5f);
-      sbody = m_world->CreateBody(&wedgebd);
-      sbody->CreateFixture(&wedgefd);
-    }
-    
-    //Dominos
-    {
+  }
+
+/// The pedal wheel
+  {
+      b2CircleShape shape;
+      shape.m_radius = 3.0f;
+  
+      b2BodyDef bd;
+      bd.position.Set(3.0f, 10.0f);
+      bd.type = b2_dynamicBody;
+      b2Body* body = m_world->CreateBody(&bd);
+      b2FixtureDef *fd = new b2FixtureDef;
+      fd->density = 100.f;
+      fd->shape = new b2PolygonShape;
+      fd->shape = &shape;
+
+      float32 w = 10.0f;
+      body->SetAngularVelocity(w);
+
+      body->CreateFixture(fd);
+
+      b2PolygonShape shape2;
+      shape2.SetAsBox(0.2f, 2.0f);
+      b2BodyDef bd2;
+      bd2.position.Set(3.0f, 10.0f);
+      b2Body* body2 = m_world->CreateBody(&bd2);
+
+      b2RevoluteJointDef jointDef, pedals;
+      jointDef.bodyA = body;
+      jointDef.bodyB = body2;
+      jointDef.localAnchorA.Set(0,0);
+      jointDef.localAnchorB.Set(0,0);
+      jointDef.collideConnected = false;
+      m_world->CreateJoint(&jointDef);
+
+      b2PolygonShape box;
+      box.SetAsBox(15.0f, 0.2f);
+      b2BodyDef bd3;
+      bd3.position.Set(3.0f, 10.0f);
+      bd3.type = b2_dynamicBody;
+      b2Body* newBody = m_world->CreateBody(&bd3);
+      b2FixtureDef *fd2 = new b2FixtureDef;
+      fd2->density = 1.f;
+      fd2->shape = new b2PolygonShape;
+      fd2->shape = &box;
+      
+      fd2->filter.groupIndex = 1;
+      newBody->CreateFixture(fd2);
+
+      pedals.bodyA = body;
+      pedals.bodyB = newBody;
+      pedals.localAnchorA.Set(0,0);
+      pedals.localAnchorB.Set(0,0);
+      pedals.collideConnected = false;
+      m_world->CreateJoint(&pedals);
+      
+      
+  }
+
+
+/// The chain running between the rear wheel and the pedal
+  {
       b2PolygonShape shape;
-      shape.SetAsBox(0.2f, 2.0f);
-	
+      shape.SetAsBox(0.6f, 0.125f);
+
       b2FixtureDef fd;
       fd.shape = &shape;
-      fd.density = 0.02;
-      fd.friction = 0.1f;
-		
-      for (int i = 0; i < 5; ++i)
-	{
-	  b2BodyDef bd;
-	  bd.type = b2_dynamicBody;
-	  bd.position.Set(-12.5f + 1.5f * i, 0.5f);
-	  b2Body* body = m_world->CreateBody(&bd);
-	  body->CreateFixture(&fd);
-	}
+      fd.density = 20.0f;
+      fd.friction = 40.0f;
+      fd.filter.groupIndex = 1;
+
+      b2RevoluteJointDef jd;
+      jd.collideConnected = false;
+
+      float32 y = 13.0f, x = -17.0f, xGap = 20.0f;
+      float32 itr = 15.0f;
+
+      b2Body* prevBody = b1;
+      b2Body* startBody;
+
+      float32 radius = 3.0f, theta = b2_pi/itr;
+
+      float32 i = 0;
+      for (i = 0; i < itr; ++i)
+      {
+        b2BodyDef bd;
+        bd.type = b2_dynamicBody;
+        bd.position.Set(x + 0.5f + i*xGap/itr, y);
+        b2Body* body = m_world->CreateBody(&bd);
+        body->CreateFixture(&fd);
+
+        if (i == 0){
+          startBody = body;
+        }
+
+        if (i != 0){
+
+            b2Vec2 anchor(float32(x + i*xGap/itr), y);
+            jd.Initialize(prevBody, body, anchor);
+            jd.collideConnected = false;
+            m_world->CreateJoint(&jd);
+        }
+
+        prevBody = body;
+      }
+
+      x += xGap;
+      y -= radius;
+     
+      for (i = 0; i < itr; i+=2)
+      {
+        b2BodyDef bd;
+        bd.type = b2_dynamicBody;
+        bd.position.Set(x + radius*sin((2*i + 1)*theta/2), y + radius*cos((2*i + 1)*theta/2));
+
+
+        b2Body* body = m_world->CreateBody(&bd);
+        body->CreateFixture(&fd);
+        body->SetTransform(body->GetPosition(), -1*(2*i + 1)*theta/2);
+
+        b2Vec2 anchor(x + radius*sin(i * theta), y + radius*cos(i * theta));
+        jd.Initialize(prevBody, body, anchor);
+        jd.collideConnected = false;
+        m_world->CreateJoint(&jd);
+
+        prevBody = body;
+      }
+      
+      
+
+      y -= radius;
+      for (i = 0; i < itr; ++i)
+      {
+        b2BodyDef bd;
+        bd.type = b2_dynamicBody;
+        bd.position.Set(x - 0.5f - i*xGap/itr, y);
+        b2Body* body = m_world->CreateBody(&bd);
+        body->CreateFixture(&fd);
+
+        b2Vec2 anchor(float32(x - i*xGap/itr), y);
+        jd.Initialize(prevBody, body, anchor);
+        jd.collideConnected = false;
+        m_world->CreateJoint(&jd);
+
+        prevBody = body;
+      }
+     
+
+      x -= xGap;
+      y += radius;
+      for (i = 0; i < itr; ++i)
+      {
+        b2BodyDef bd;
+        bd.type = b2_dynamicBody;
+        bd.position.Set(x - radius*sin((2*i + 1)*theta/2), y - radius*cos((2*i + 1)*theta/2));
+
+        b2Body* body = m_world->CreateBody(&bd);
+        body->CreateFixture(&fd);
+        body->SetTransform(body->GetPosition(), -1*(2*i + 1)*theta/2);
+
+        b2Vec2 anchor(x - radius*sin(i * theta), y - radius*cos(i * theta));
+        jd.Initialize(prevBody, body, anchor);
+        jd.collideConnected = false;
+        m_world->CreateJoint(&jd);
+
+        prevBody = body;
+      }
+      y += radius;
+      b2Vec2 lastAnchor(x, y);
+      jd.Initialize(prevBody, startBody, lastAnchor);
+      jd.collideConnected = false;
+      m_world->CreateJoint(&jd);
+
     }
+
+  /*
+	{
+
+      b2Body* sbody;
+      b2CircleShape circle;
+      circle.m_radius = 1.0;
+  
+      b2FixtureDef ballfd;
+      ballfd.shape = &circle;
+      ballfd.density = 50.0f;
+      ballfd.friction = 0.0f;
+      ballfd.restitution = 0.0f;
+      b2BodyDef ballbd;
+      ballbd.type = b2_dynamicBody;
+      ballbd.position.Set(14.0f, 18.0f);
+      sbody = m_world->CreateBody(&ballbd);
+      sbody->CreateFixture(&ballfd);
+
+
+  
+
+			b2CircleShape shape;
+			shape.m_radius = 5.0f;
+
+      b2FixtureDef ballfd;
+      ballfd.shape = &circle;
+      ballfd.density = 50.0f;
+      ballfd.friction = 0.0f;
+      ballfd.restitution = 0.0f;
+
+      b2BodyDef ballbd;
+      ballbd.type = b2_dynamicBody;
+      ballbd.position.Set(14.0f, 18.0f);
+      
+
+			b2BodyDef bd;
+			bd.type = b2_dynamicBody;
+
+			b2RevoluteJointDef rjd;
+
+			bd.position.Set(-10.0f, 20.0f);
+			b2Body* body = m_world->CreateBody(&bd);
+			body->CreateFixture(&shape, 5.0f);
+			
+			
+			b2BodyDef bd2;
+			bd2.type = b2_dynamicBody;
+			bd.position.Set(-10.0f, 10.0f);
+
+			b2Body* body2 = m_world->CreateBody(&bd2);
+			body2->CreateFixture(&shape, 5.0f);
+
+			float32 w = 100.0f;
+			body->SetAngularVelocity(w);
+			body->SetLinearVelocity(b2Vec2(-0.0f * w, 0.0f));
+
+			rjd.Initialize(body2, body, b2Vec2(0.0f, 0.0f));
+			rjd.motorSpeed = 0.0f * b2_pi;
+			rjd.maxMotorTorque = 00.0f;
+			rjd.enableMotor = false;
+
+			rjd.lowerAngle = -0.25f * b2_pi;
+			rjd.upperAngle = 0.5f * b2_pi;
+			
+      rjd.enableLimit = true;
+			rjd.collideConnected = true;
+
+
+			(b2RevoluteJoint*)m_world->CreateJoint(&rjd);
+			
+		}*/
+
+    
+    /**
+     * 
+     * 1. 6 disc joints 
+     * 		one for shoulder & hip
+     * 		one each at both knees and both pedals (legs glued with pedals)
+     * 
+     * 
+     * */
+    
 }
+
 
   sim_t *sim = new sim_t("Dominos", dominos_t::create);
 }
